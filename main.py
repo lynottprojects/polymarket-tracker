@@ -16,6 +16,8 @@ GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 
 SHEET_NAME = 'Daily Volume'
 DEFILLAMA_URL = 'https://api.llama.fi/summary/dexs/polymarket'
+# Only track data from this date onward (sheet start date)
+CUTOFF_DATE = '2025-08-16'
 
 
 def get_access_token():
@@ -98,10 +100,10 @@ def main():
     existing_dates = get_existing_dates(token)
     print(f"Sheet already has {len(existing_dates)} date(s)", flush=True)
 
-    # Find new rows to append (only dates not already in sheet)
+    # Find new rows to append (only dates not already in sheet, after cutoff)
     new_rows = []
     for date_str, vol in all_volume:
-        if date_str not in existing_dates:
+        if date_str >= CUTOFF_DATE and date_str not in existing_dates:
             new_rows.append([date_str, vol, round(vol / 1_000_000, 2)])
 
     if not new_rows:
